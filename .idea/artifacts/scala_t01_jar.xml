@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="scala_t01:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/scala_t01_jar</output-path>
+    <root id="archive" name="scala_t01.jar">
+      <element id="module-output" name="scala_t01" />
+    </root>
+  </artifact>
+</component>
