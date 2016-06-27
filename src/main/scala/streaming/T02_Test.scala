@@ -14,8 +14,8 @@ object T02_Test {
     println("reading!....")
     var line = in.readLine()
     while (line != null) {
-        println(line)
-        line = in.readLine()
+      println(line)
+      line = in.readLine()
     }
   }
 }

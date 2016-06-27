@@ -21,8 +21,8 @@ object T01 {
     ssc.start() // Start the computation
     ssc.awaitTermination() // Wait for the computation to terminate
 
-//    nc -lk 9999
-//      ./bin/run-example streaming.T01 localhost 9999
+    //    nc -lk 9999
+    //      ./bin/run-example streaming.T01 localhost 9999
   }
 
 }

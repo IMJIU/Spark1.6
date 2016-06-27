@@ -44,9 +44,9 @@ object T02_RandomLogger {
           while (true) {
             Thread.sleep(sec)
             val content = generateContent(index)
-//            println(content)
-                        out.write(content + " " + content + "\n")
-//            out.write(content + "\n")
+            //            println(content)
+            out.write(content + " " + content + "\n")
+            //            out.write(content + "\n")
             out.flush()
           }
           socket.close()

@@ -21,7 +21,7 @@ object T04_Stateful {
     ssc.checkpoint(".")
     val lines = ssc.socketTextStream("localhost", 9999)
     val words = lines.flatMap(_.split(" "))
-    val wordDstream = words.map(x => (x,1))
+    val wordDstream = words.map(x => (x, 1))
 
     val stateDstream = wordDstream.updateStateByKey[Int](updateFunc)
     stateDstream.print()
