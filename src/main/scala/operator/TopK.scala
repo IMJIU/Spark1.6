@@ -13,7 +13,7 @@ object TopK {
     conf.setAppName("first spark app!!!!")
     conf.setMaster("local")
     var spark = new SparkContext(conf)
-//    val spark = new SparkContext("local", "TopK", System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
+    //    val spark = new SparkContext("local", "TopK", System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
     val count = spark.textFile("data").flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
 
     /*统计RDD每个分区内的Top K查询*/

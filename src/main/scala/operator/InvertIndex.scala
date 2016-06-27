@@ -32,12 +32,12 @@ object InvertIndex {
     }).distinct()
     /*将( 词, 文档ID) 的数据进行聚集, 相同词对应的文档ID统计到一起,
     形成( 词, "文档ID1, 文档ID2 , 文档ID3……") , 形成简单的倒排索引*/
-//    words.map(word => {
-//      (word._2, word._1)
-//    })
-//      .reduce((a, b) => {
-//        a + "\t" + b
-//      })
-//      .saveAsTextFile("index")
+    //    words.map(word => {
+    //      (word._2, word._1)
+    //    })
+    //      .reduce((a, b) => {
+    //        a + "\t" + b
+    //      })
+    //      .saveAsTextFile("index")
   }
 }
