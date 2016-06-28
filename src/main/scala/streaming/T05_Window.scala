@@ -15,7 +15,8 @@ object T05_Window {
     val lines = ssc.socketTextStream("localhost", 9999)
     val words = lines.flatMap(_.split(" "))
     //每10秒钟计算前15秒的数据
-    val wordsCounts = words.map(x => (x, 1)).reduceByKeyAndWindow(_ + _, _ - _, Seconds(10), Seconds(5))
+    val wordsCounts = words.map(x => (x, 1))
+      .reduceByKeyAndWindow(_ + _, _ - _, Seconds(10), Seconds(5))
 
     //    val wordsCounts = words.map(x=>(x,1)).reduceByKeyAndWindow(_+_,_-_,Seconds(15),Seconds(15))
     //    val sortedwc = wordsCounts.map{case (char,count)=>(count,char)}.transform(_.sortByKey(false)).map{case(char,count)=>(count,char)}

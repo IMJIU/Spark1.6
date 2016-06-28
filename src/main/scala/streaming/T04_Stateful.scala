@@ -5,6 +5,7 @@ import org.apache.spark.streaming._
 
 /**
   * Created by Administrator on 2016/4/19.
+  * 累加
   */
 object T04_Stateful {
 

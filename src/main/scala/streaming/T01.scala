@@ -5,6 +5,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
   * Created by Administrator on 2016/4/28.
+  * 不累加
   */
 object T01 {
   def main(args: Array[String]) {
