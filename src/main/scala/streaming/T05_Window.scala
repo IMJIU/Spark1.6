@@ -17,6 +17,7 @@ object T05_Window {
     //每5秒钟计算前10秒的数据
 //    val wordsCounts = words.map(x => (x, 1)).reduceByKeyAndWindow(_ + _,  Seconds(10), Seconds(5))
     val pairs = words.map(word => (word, 1))
+    //每10秒查看过去30秒之内的数据
     val windowedWordCounts = pairs.reduceByKeyAndWindow((a:Int,b:Int) => (a + b), Seconds(30), Seconds(10))
 
     //    val wordsCounts = words.map(x=>(x,1)).reduceByKeyAndWindow(_+_,_-_,Seconds(15),Seconds(15))
