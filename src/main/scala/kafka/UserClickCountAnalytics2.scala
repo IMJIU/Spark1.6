@@ -29,7 +29,7 @@ object UserClickCountAnalytics2 {
 
     // Kafka configurations
     val topics = Set("user_events")
-    val brokers = "10.10.4.126:9092,10.10.4.127:9092"
+    val brokers = "192.168.72.128:9092"
     val kafkaParams = Map[String, String](
       "metadata.broker.list" -> brokers, "serializer.class" -> "kafka.serializer.StringEncoder")
 
@@ -49,50 +49,11 @@ object UserClickCountAnalytics2 {
     userClicks.foreachRDD(rdd => {
       rdd.foreachPartition(partitionOfRecords => {
         partitionOfRecords.foreach(pair => {
-
-          /**
-            * Internal Redis client for managing Redis connection {@link Jedis} based on {@link RedisPool}
-            */
-          object InternalRedisClient extends Serializable {
-
-            @transient private var pool: JedisPool = null
-
-            def makePool(redisHost: String, redisPort: Int, redisTimeout: Int,
-                         maxTotal: Int, maxIdle: Int, minIdle: Int): Unit = {
-              makePool(redisHost, redisPort, redisTimeout, maxTotal, maxIdle, minIdle, true, false, 10000)
-            }
-
-            def makePool(redisHost: String, redisPort: Int, redisTimeout: Int,
-                         maxTotal: Int, maxIdle: Int, minIdle: Int, testOnBorrow: Boolean,
-                         testOnReturn: Boolean, maxWaitMillis: Long): Unit = {
-              if(pool == null) {
-                val poolConfig = new GenericObjectPoolConfig()
-                poolConfig.setMaxTotal(maxTotal)
-                poolConfig.setMaxIdle(maxIdle)
-                poolConfig.setMinIdle(minIdle)
-                poolConfig.setTestOnBorrow(testOnBorrow)
-                poolConfig.setTestOnReturn(testOnReturn)
-                poolConfig.setMaxWaitMillis(maxWaitMillis)
-                pool = new JedisPool(poolConfig, redisHost, redisPort, redisTimeout)
-
-                val hook = new Thread{
-                  override def run = pool.destroy()
-                }
-                sys.addShutdownHook(hook.run)
-              }
-            }
-
-            def getPool: JedisPool = {
-              assert(pool != null)
-              pool
-            }
-          }
-
           // Redis configurations
           val maxTotal = 10
           val maxIdle = 10
           val minIdle = 1
-          val redisHost = "10.10.4.130"
+          val redisHost = "192.168.72.128"
           val redisPort = 6379
           val redisTimeout = 30000
           val dbIndex = 1
@@ -103,7 +64,8 @@ object UserClickCountAnalytics2 {
           val jedis =InternalRedisClient.getPool.getResource
           jedis.select(dbIndex)
           jedis.hincrBy(clickHashKey, uid, clickCount)
-          InternalRedisClient.getPool.returnResource(jedis)
+//          InternalRedisClient.getPool.returnResource(jedis)
+          jedis.close()
         })
       })
     })
@@ -111,5 +73,42 @@ object UserClickCountAnalytics2 {
     ssc.start()
     ssc.awaitTermination()
 
+  }
+}
+/**
+  * Internal Redis client for managing Redis connection {@link Jedis} based on {@link RedisPool}
+  */
+object InternalRedisClient extends Serializable {
+
+  @transient private var pool: JedisPool = null
+
+  def makePool(redisHost: String, redisPort: Int, redisTimeout: Int,
+               maxTotal: Int, maxIdle: Int, minIdle: Int): Unit = {
+    makePool(redisHost, redisPort, redisTimeout, maxTotal, maxIdle, minIdle, true, false, 10000)
+  }
+
+  def makePool(redisHost: String, redisPort: Int, redisTimeout: Int,
+               maxTotal: Int, maxIdle: Int, minIdle: Int, testOnBorrow: Boolean,
+               testOnReturn: Boolean, maxWaitMillis: Long): Unit = {
+    if(pool == null) {
+      val poolConfig = new GenericObjectPoolConfig()
+      poolConfig.setMaxTotal(maxTotal)
+      poolConfig.setMaxIdle(maxIdle)
+      poolConfig.setMinIdle(minIdle)
+      poolConfig.setTestOnBorrow(testOnBorrow)
+      poolConfig.setTestOnReturn(testOnReturn)
+      poolConfig.setMaxWaitMillis(maxWaitMillis)
+      pool = new JedisPool(poolConfig, redisHost, redisPort, redisTimeout)
+
+      val hook = new Thread{
+        override def run = pool.destroy()
+      }
+      sys.addShutdownHook(hook.run)
+    }
+  }
+
+  def getPool: JedisPool = {
+    assert(pool != null)
+    pool
   }
 }

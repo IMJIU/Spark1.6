@@ -46,7 +46,7 @@ object KafkaEventProducer {
   // bin/kafka-console-consumer.sh --zookeeper zk1:2181,zk2:2181,zk3:22181/kafka --topic test_json_basis_event --from-beginning
   def main(args: Array[String]): Unit = {
     val topic = "user_events"
-    val brokers = "10.10.4.126:9092,10.10.4.127:9092"
+    val brokers = "192.168.72.128:9092"
     val props = new Properties()
     props.put("metadata.broker.list", brokers)
     props.put("serializer.class", "kafka.serializer.StringEncoder")
@@ -67,7 +67,7 @@ object KafkaEventProducer {
       producer.send(new KeyedMessage[String, String](topic, event.toString))
       println("Message sent: " + event)
 
-      Thread.sleep(200)
+      Thread.sleep(1000)
     }
   }
 }

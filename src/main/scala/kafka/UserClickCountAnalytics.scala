@@ -24,9 +24,12 @@ object UserClickCountAnalytics {
 
     // Kafka configurations
     val topics = Set("user_events")
-    val brokers = "10.10.4.126:9092,10.10.4.127:9092"
+    val brokers = "192.168.72.128:9092"
     val kafkaParams = Map[String, String](
-      "metadata.broker.list" -> brokers, "serializer.class" -> "kafka.serializer.StringEncoder")
+      "metadata.broker.list" -> brokers,
+      "serializer.class" -> "kafka.serializer.StringEncoder",
+      "forceFromStart" -> "true",
+      "startOffsetTime" -> "-2")
 
     val dbIndex = 1
     val clickHashKey = "app::users::click"
@@ -35,6 +38,7 @@ object UserClickCountAnalytics {
     val kafkaStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
 
     val events = kafkaStream.flatMap(line => {
+      println("line:" + line)
       val data = JSONObject.fromObject(line._2)
       Some(data)
     })
@@ -44,12 +48,16 @@ object UserClickCountAnalytics {
     userClicks.foreachRDD(rdd => {
       rdd.foreachPartition(partitionOfRecords => {
         partitionOfRecords.foreach(pair => {
+          println("rdd:" + pair)
           val uid = pair._1
           val clickCount = pair._2
           val jedis = RedisClient.pool.getResource
           jedis.select(dbIndex)
           jedis.hincrBy(clickHashKey, uid, clickCount)
-          RedisClient.pool.returnResource(jedis)
+          println(uid + ":" + jedis.hget(clickHashKey, uid));
+          jedis.close();
+
+          //          RedisClient.pool.returnResource(jedis)
         })
       })
     })
