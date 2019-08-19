@@ -28,8 +28,8 @@ object T02_RandomLogger {
 
   def main(args: Array[String]) {
     var port = 9999
-    var sec = 1000l
-    val map = new mutable.HashMap[String,Int]()
+    var sec = 100l
+    val map = new mutable.HashMap[String, Int]()
     if (args.length >= 2) {
       port = args(0).toInt
       sec = args(1).toLong
@@ -47,10 +47,10 @@ object T02_RandomLogger {
           while (true) {
             Thread.sleep(sec)
             val content = generateContent(index)
-            map.put(content,map.getOrElse(content,0)+1);
-            out.write(content+"\n")
+            map.put(content, map.getOrElse(content, 0) + 1);
+            out.write(content + "\n")
             out.flush()
-            println(map)
+//            println(map)
           }
           socket.close()
         }

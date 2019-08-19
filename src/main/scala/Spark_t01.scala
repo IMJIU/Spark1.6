@@ -3,16 +3,16 @@ import org.apache.spark._
 import scala.io.Source
 
 object Spark_t01 {
-  val fileName: String = "D:\\access_log\\236\\localhost_access_log.2016-06-18.txt";
+  var fileName: String = "/Users/qudian/a.txt";
 
   def main(args: Array[String]) {
-
+    fileName="/Users/qudian/tmp/a.txt"
     wordCount();
-    //        exeCount_click_nopic()
-    //    exeCount2_click_withpic()
-    //    exeCount3_sum()
-    //    exeCount4_avg()
-    //    exeCount5_mix()
+//            exeCount_click_nopic()
+//        exeCount2_click_withpic()
+//        exeCount3_sum()
+//        exeCount4_avg()
+//        exeCount5_mix()
     //    println("123123ms")
     //    hdfs_test();
     //    t01()
@@ -46,7 +46,7 @@ object Spark_t01 {
     conf.setMaster("local")
     var sc = new SparkContext(conf)
     //    var lines = sc.textFile("d://log_network.txt",1)
-    var lines = sc.textFile("hdfs://192.168.137.210:9000/input/a.log", 1)
+    var lines = sc.textFile("hdfs://192.168.137.210:9000/input/a.log", 3)
     var words = lines.flatMap { line => line.split(" ") }
 
     var pairs = words.map { word => (word, 1) }
@@ -54,6 +54,22 @@ object Spark_t01 {
     var wc = pairs.reduceByKey(_ + _)
 
     wc.foreach(wnum => println(wnum._1 + ":" + wnum._2))
+
+    val data = sc.parallelize(
+      List(
+        ("13909029812", ("20170507", "http://www.baidu.com")),
+        ("18089376778", ("20170401", "http://www.google.com")),
+        ("18089376778", ("20170508", "http://www.taobao.com")),
+        ("13909029812", ("20170507", "http://www.51cto.com"))
+      )
+    )
+
+    data.aggregateByKey(scala.collection.mutable.Set[(String, String)](), 200)((set, item) => {
+      set += item
+    },
+      (set1, set2) => set1 union set2)
+      .mapValues(x => x.toIterable)
+      .collect
   }
 
   def wordCount(): Unit = {
@@ -61,7 +77,7 @@ object Spark_t01 {
     conf.setAppName("first spark app!!!!")
     conf.setMaster("local")
     var sc = new SparkContext(conf)
-    sc.textFile(fileName, 1)
+    sc.textFile(fileName, 3)
       .flatMap { line => line.split(" ") }
       .map { word => (word, 1) }
       .reduceByKey(_ + _)
@@ -114,7 +130,7 @@ object Spark_t01 {
     conf.setAppName("first spark app!!!!")
     conf.setMaster("local")
     var sc = new SparkContext(conf)
-    sc.textFile("e://info.log.2016-04-07", 4)
+    sc.textFile(fileName, 4)
       .filter(string => string.indexOf( """@Cost""") != -1)
       .map(line => {
         val v = line.split(" ");
@@ -155,7 +171,7 @@ object Spark_t01 {
     conf.setAppName("first spark app!!!!")
     conf.setMaster("local")
     var sc = new SparkContext(conf)
-    sc.textFile("e://info.log.2016-04-07", 4)
+    sc.textFile(fileName, 4)
       .filter(string => string.indexOf( """@Cost""") != -1)
       .map(line => {
         val v = line.split(" ");
@@ -179,11 +195,13 @@ object Spark_t01 {
     val fcache = sc.textFile("g://info.log.2016-04-07", 1).filter(string => string.indexOf( """@Cost""") != -1).cache
 
     var left = fcache.map(line => {
-      val v = line.split(" "); (v(6).substring(0, v(6).indexOf("@Cost")), 1)
+      val v = line.split(" ");
+      (v(6).substring(0, v(6).indexOf("@Cost")), 1)
     }).reduceByKey(_ + _)
 
     val right = fcache.map(line => {
-      val v = line.split(" "); (v(6).substring(0, v(6).indexOf("@Cost")), v(7).substring(0, v(7).indexOf("ms")).toInt)
+      val v = line.split(" ");
+      (v(6).substring(0, v(6).indexOf("@Cost")), v(7).substring(0, v(7).indexOf("ms")).toInt)
     }).groupByKey().map { x => (x._1, (x._2.reduce(_ + _) / x._2.count(x => true)) + "ms") }
     left.join(right).sortBy(_._2._1).foreach(w => println(w._1 + " 访问次数：" + w._2._1 + " 平均耗时:" + w._2._2))
   }

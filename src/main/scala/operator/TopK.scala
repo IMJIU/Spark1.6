@@ -4,17 +4,25 @@ package operator
   * Created by Administrator on 2016/4/19.
   */
 
+import java.util
+
 import org.apache.spark.{SparkConf, SparkContext}
 
 object TopK {
+  val list = new util.LinkedList[Any]()
+  val map = new util.LinkedHashMap[String,Int]()
   def main(args: Array[String]) {
+    var path = "/tmp/stop_easyconnect.sh"
     /*执行WordCount, 统计出最高频的词*/
     var conf = new SparkConf
     conf.setAppName("first spark app!!!!")
     conf.setMaster("local")
     var spark = new SparkContext(conf)
     //    val spark = new SparkContext("local", "TopK", System.getenv("SPARK_HOME"), SparkContext.jarOfClass(this.getClass))
-    val count = spark.textFile("data").flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
+    val count = spark.textFile(path)
+      .flatMap(line => line.split(" "))
+      .map(word => (word, 1))
+      .reduceByKey(_ + _)
 
     /*统计RDD每个分区内的Top K查询*/
     val topk = count.mapPartitions(iter => {
@@ -41,6 +49,7 @@ object TopK {
   def putToHeap(iter: (String, Int)) {
     /*数据加入含k个元素的堆中*/
     //……
+    map.put(iter._1,map.getOrDefault(iter._1,0)+1)
   }
 
   def getHeap(): Array[(String, Int)] = {

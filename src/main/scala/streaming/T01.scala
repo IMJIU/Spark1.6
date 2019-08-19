@@ -1,7 +1,12 @@
 package streaming
 
+import java.net
+
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+
+import scala.tools.nsc.io.Socket
+import scala.util.Random
 
 /**
   * Created by Administrator on 2016/4/28.
@@ -10,7 +15,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 object T01 {
   def main(args: Array[String]) {
     val conf = new SparkConf().setMaster("local[2]").setAppName("NetworkWordCount")
-    val ssc = new StreamingContext(conf, Seconds(1))
+    val ssc = new StreamingContext(conf, Seconds(10))
     val lines = ssc.socketTextStream("localhost", 9999)
     val words = lines.flatMap(_.split(" "))
     // not necessary since Spark 1.3
@@ -24,6 +29,7 @@ object T01 {
 
     //    nc -lk 9999
     //      ./bin/run-example streaming.T01 localhost 9999
+
   }
 
 }
