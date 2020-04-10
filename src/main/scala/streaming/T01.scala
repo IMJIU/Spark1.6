@@ -1,12 +1,9 @@
 package streaming
 
-import java.net
 
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
-import scala.tools.nsc.io.Socket
-import scala.util.Random
 
 /**
   * Created by Administrator on 2016/4/28.
